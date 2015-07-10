@@ -1,4 +1,3 @@
-//http://ntrg.cs.tcd.ie/undergrad/4ba2/multicast/antony/example.html
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -102,9 +101,11 @@ main(int argc, char *argv[])
 		//puts(msgbuf);
 		DfmuxPacket *tmp = (DfmuxPacket*) msgbuf;
 		printf("%u %u %u\n", tmp->seq, tmp->fir_stage, tmp->module);
+
 		for (i = 0; i<128; i++){
 			printf("%d ", tmp->s[i]);
 		}
+		printf("\n");
 		printf("\n");
 
 		fprintf(fileout, "%u %u %u\n", tmp->seq, tmp->fir_stage, tmp->module);

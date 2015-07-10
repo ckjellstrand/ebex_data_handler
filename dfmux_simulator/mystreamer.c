@@ -46,6 +46,10 @@ int main() {
 	int fd, nbytes, cnt;
 	struct ip_mreq mreq;
 
+	DfmuxPacket packet;
+	char b[sizeof(packet)];
+	// Packet and character array to memcpy the packet into for multicasting.
+
 	fd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (fd < 0) {
 		perror("socket");
@@ -57,17 +61,31 @@ int main() {
 	addr.sin_addr.s_addr=inet_addr(HELLO_GROUP);
 	addr.sin_port=htons(HELLO_PORT);
 
-	DfmuxPacket packet;
-	char b[sizeof(packet)];
-	memcpy(b, &packet, sizeof(packet));
+	FILE *filein;
+	//filein = fopen("noise", "r");
+	filein = fopen("data_from_bolo", "r");
+	uint32_t seq = 0;
+	int32_t data_buffer[128];
+	int i;
+	int n = 0;
+	while(n<10000) {
+		if (1){
+			for (i=0;i<128;i++)
+			{
+				fscanf(filein, "%d", &packet.s[i]);
+			}
 
+			packet.seq = seq;
 
-	while(1) {
+			memcpy(b, &packet, sizeof(packet));
+			seq++;
+		}
+
 		nbytes = sendto(fd, b, sizeof(b), 0, (struct sockaddr *) &addr, sizeof(addr));
 		if (nbytes < 0 ) {
 			perror("sendto");
 			exit(1);
 		}
-		sleep(1);
+		n++;
 	}
 }
