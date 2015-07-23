@@ -46,7 +46,7 @@ main(int argc, char *argv[])
 	int fd, nbytes,addrlen;
 	struct ip_mreq mreq;
 	char msgbuf[MSGBUFSIZE];
-
+	char totalbuff[MSGBUFSIZE*1000];
 
 	/* create what looks like an ordinary UDP socket */
 	fd=socket(AF_INET,SOCK_DGRAM,0);
@@ -85,12 +85,9 @@ main(int argc, char *argv[])
 	}
 
 
-	/* Set up output file. */
-	FILE *fileout;
-	fileout = fopen("/home/bjorn/ebex_data_handler/dfmux_simulator/parsed_data/out.txt", "w+");
+	//while (1) {
 	int i;
-
-	while (1) {
+	for (i=0; i<1000; i++){
 		addrlen=sizeof(addr);
 
 		nbytes=recvfrom(fd,msgbuf,MSGBUFSIZE,0,(struct sockaddr *) &addr,&addrlen);
@@ -98,26 +95,12 @@ main(int argc, char *argv[])
 			perror("recvfrom");
 			exit(1);
 		}
-		//puts(msgbuf);
-		DfmuxPacket *tmp = (DfmuxPacket*) msgbuf;
-
-		/*
-		printf("%u %u %u\n", tmp->seq, tmp->fir_stage, tmp->module);
-
-		for (i = 0; i<128; i++){
-			printf("%d ", tmp->s[i]);
-		}
-		printf("\n");
-		printf("\n");
-		*/
-
-		fprintf(fileout, "%u %u %u\n", tmp->seq, tmp->fir_stage, tmp->module);
-		for (i = 0; i<128; i++){
-			fprintf(fileout, "%d ", tmp->s[i]);
-		}
-		fprintf(fileout, "\n");
-
-
+		//DfmuxPacket *tmp = (DfmuxPacket*) msgbuf;
+		memcpy(totalbuff + MSGBUFSIZE*i, msgbuf, MSGBUFSIZE);
+		printf("%d\n", totalbuff[i]);
+		// This isn't actually ints, but I can see differences between packets if I pretend they are.
+		printf("Received %d\n", i);
 	}
+	printf("%d\n", sizeof(totalbuff));
+	// Do blosc compression here.
 }
-
